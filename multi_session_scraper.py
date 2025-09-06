@@ -73,7 +73,10 @@ class MultiSessionScraper:
                     '--disable-background-timer-throttling',
                     '--disable-backgrounding-occluded-windows',
                     '--disable-renderer-backgrounding',
-                    '--single-process'  # Use single process to reduce memory
+                    '--single-process',
+                    '--memory-pressure-off',
+                    '--max_old_space_size=128',
+                    '--no-zygote'
                 ],
                 proxy=proxy
             )
@@ -93,8 +96,8 @@ class MultiSessionScraper:
             
             logging.info(f"NEW SESSION - Page {page_num}: {url} via {proxy['id'] if proxy else 'direct'}")
             
-            # Navigate
-            await page.goto(url, wait_until='domcontentloaded', timeout=60000)
+            # Navigate with increased timeout
+            await page.goto(url, wait_until='domcontentloaded', timeout=120000)
             
             # Handle Cloudflare
             title = await page.title()
@@ -234,8 +237,8 @@ class MultiSessionScraper:
         """Scrape multiple pages in parallel using different browser sessions"""
         logging.info(f"Scraping {len(pages_to_scrape)} pages in parallel for '{keyword}' in {place}")
         
-        # Limit concurrent sessions for low memory environments
-        semaphore = asyncio.Semaphore(2)  # Reduced for Render's 512MB limit
+        # Limit concurrent sessions for low memory environments  
+        semaphore = asyncio.Semaphore(1)  # Only 1 browser at a time for 512MB limit
         
         async def scrape_with_semaphore(page_num):
             async with semaphore:
@@ -386,8 +389,8 @@ class MultiSessionScraper:
                 print(f"MULTI-SESSION SCRAPING: '{keyword}' in {place}")
                 print(f"{'='*70}")
                 
-                # Define pages to scrape - reduced for memory limits
-                pages_to_test = list(range(1, 21))  # Pages 1-20 (reduced for Render)
+                # Define pages to scrape - minimal for 512MB memory limit
+                pages_to_test = list(range(1, 6))  # Pages 1-5 only (~150 listings)
                 
                 # Scrape pages in parallel
                 listings = await self.scrape_multiple_pages_parallel(keyword, place, pages_to_test)
