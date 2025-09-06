@@ -1,8 +1,0 @@
-services:
-  - type: cron
-    name: leads-scraper
-    env: python
-    schedule: "0 2 * * *"
-    buildCommand: pip install -r requirements.txt && playwright install chromium
-    startCommand: python multi_session_scraper.py pst
-    plan: starter
