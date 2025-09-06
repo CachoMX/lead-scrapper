@@ -227,8 +227,8 @@ class MultiSessionScraper:
         """Scrape multiple pages in parallel using different browser sessions"""
         logging.info(f"Scraping {len(pages_to_scrape)} pages in parallel for '{keyword}' in {place}")
         
-        # Limit concurrent sessions to avoid overwhelming
-        semaphore = asyncio.Semaphore(5)  # Increased for better throughput
+        # Limit concurrent sessions for low memory environments
+        semaphore = asyncio.Semaphore(2)  # Reduced for Render's 512MB limit
         
         async def scrape_with_semaphore(page_num):
             async with semaphore:
@@ -363,8 +363,8 @@ class MultiSessionScraper:
                 print(f"MULTI-SESSION SCRAPING: '{keyword}' in {place}")
                 print(f"{'='*70}")
                 
-                # Define pages to scrape - all available pages
-                pages_to_test = list(range(1, 101))  # Pages 1-100 (all available pages)
+                # Define pages to scrape - reduced for memory limits
+                pages_to_test = list(range(1, 21))  # Pages 1-20 (reduced for Render)
                 
                 # Scrape pages in parallel
                 listings = await self.scrape_multiple_pages_parallel(keyword, place, pages_to_test)
