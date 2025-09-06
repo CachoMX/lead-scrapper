@@ -66,7 +66,13 @@ class MultiSessionScraper:
                     '--disable-blink-features=AutomationControlled',
                     '--disable-web-security',
                     '--disable-dev-shm-usage',
-                    '--no-sandbox'
+                    '--no-sandbox',
+                    '--disable-gpu',
+                    '--disable-extensions',
+                    '--disable-background-timer-throttling',
+                    '--disable-backgrounding-occluded-windows',
+                    '--disable-renderer-backgrounding',
+                    '--single-process'  # Use single process to reduce memory
                 ],
                 proxy=proxy
             )
