@@ -10,6 +10,7 @@ import logging
 import sys
 import os
 import json
+import subprocess
 from urllib.parse import urlencode
 import requests
 from datetime import datetime
@@ -337,8 +338,24 @@ class MultiSessionScraper:
         except Exception as e:
             logging.error(f"Error sending CSV to webhook: {e}")
     
+    def ensure_playwright_browsers(self):
+        """Ensure Playwright browsers are installed"""
+        try:
+            logging.info("Checking Playwright browser installation...")
+            result = subprocess.run(['playwright', 'install', 'chromium'], 
+                                  capture_output=True, text=True, timeout=300)
+            if result.returncode == 0:
+                logging.info("Playwright browsers installed successfully")
+            else:
+                logging.warning(f"Playwright install warning: {result.stderr}")
+        except Exception as e:
+            logging.error(f"Failed to install Playwright browsers: {e}")
+
     async def run_multi_session_scraper(self):
         """Run multi-session scraper"""
+        # Install browsers at runtime
+        self.ensure_playwright_browsers()
+        
         if not self.proxies:
             logging.error("No proxies available")
             return
