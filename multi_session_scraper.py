@@ -67,16 +67,7 @@ class MultiSessionScraper:
                     '--disable-blink-features=AutomationControlled',
                     '--disable-web-security',
                     '--disable-dev-shm-usage',
-                    '--no-sandbox',
-                    '--disable-gpu',
-                    '--disable-extensions',
-                    '--disable-background-timer-throttling',
-                    '--disable-backgrounding-occluded-windows',
-                    '--disable-renderer-backgrounding',
-                    '--single-process',
-                    '--memory-pressure-off',
-                    '--max_old_space_size=128',
-                    '--no-zygote'
+                    '--no-sandbox'
                 ],
                 proxy=proxy
             )
@@ -96,8 +87,8 @@ class MultiSessionScraper:
             
             logging.info(f"NEW SESSION - Page {page_num}: {url} via {proxy['id'] if proxy else 'direct'}")
             
-            # Navigate with increased timeout
-            await page.goto(url, wait_until='domcontentloaded', timeout=120000)
+            # Navigate
+            await page.goto(url, wait_until='domcontentloaded', timeout=60000)
             
             # Handle Cloudflare
             title = await page.title()
@@ -237,8 +228,8 @@ class MultiSessionScraper:
         """Scrape multiple pages in parallel using different browser sessions"""
         logging.info(f"Scraping {len(pages_to_scrape)} pages in parallel for '{keyword}' in {place}")
         
-        # Limit concurrent sessions for low memory environments  
-        semaphore = asyncio.Semaphore(1)  # Only 1 browser at a time for 512MB limit
+        # Limit concurrent sessions to avoid overwhelming
+        semaphore = asyncio.Semaphore(5)  # Back to 5 concurrent browsers for local power
         
         async def scrape_with_semaphore(page_num):
             async with semaphore:
@@ -356,9 +347,6 @@ class MultiSessionScraper:
 
     async def run_multi_session_scraper(self):
         """Run multi-session scraper"""
-        # Install browsers at runtime
-        self.ensure_playwright_browsers()
-        
         if not self.proxies:
             logging.error("No proxies available")
             return
@@ -389,8 +377,8 @@ class MultiSessionScraper:
                 print(f"MULTI-SESSION SCRAPING: '{keyword}' in {place}")
                 print(f"{'='*70}")
                 
-                # Define pages to scrape - minimal for 512MB memory limit
-                pages_to_test = list(range(1, 6))  # Pages 1-5 only (~150 listings)
+                # Define pages to scrape - full power for local execution
+                pages_to_test = list(range(1, 101))  # All 100 pages (~3000 listings)
                 
                 # Scrape pages in parallel
                 listings = await self.scrape_multiple_pages_parallel(keyword, place, pages_to_test)
