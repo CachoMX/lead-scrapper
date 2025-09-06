@@ -1,0 +1,13 @@
+services:
+  - type: cron
+    name: leads-scraper
+    env: python
+    schedule: "0 2 * * *"  # Runs daily at 2 AM
+    buildCommand: pip install -r requirements.txt && playwright install chromium
+    startCommand: python multi_session_scraper.py
+    plan: starter
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: PLAYWRIGHT_BROWSERS_PATH
+        value: "/opt/render/project/src/.playwright"
